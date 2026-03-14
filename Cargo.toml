@@ -1,6 +1,6 @@
 [package]
 name = "mnemebrain"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 edition = "2021"
 description = "Rust SDK for MnemeBrain — belief-based memory for AI agents"
 license = "MIT"
