@@ -716,8 +716,8 @@ async fn test_list_beliefs_with_belief_type_filter() {
         .await;
 
     let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
-    let filters = mnemebrain::BeliefFilters::default()
-        .with_belief_type(mnemebrain::BeliefType::Inference);
+    let filters =
+        mnemebrain::BeliefFilters::default().with_belief_type(mnemebrain::BeliefType::Inference);
     let resp = client.list_beliefs(&filters).await.unwrap();
     assert_eq!(resp.total, 0);
 }
@@ -738,8 +738,7 @@ async fn test_list_beliefs_with_tag_filter() {
         .await;
 
     let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
-    let filters = mnemebrain::BeliefFilters::default()
-        .with_tag("science");
+    let filters = mnemebrain::BeliefFilters::default().with_tag("science");
     let resp = client.list_beliefs(&filters).await.unwrap();
     assert_eq!(resp.total, 0);
 }

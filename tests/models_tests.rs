@@ -929,8 +929,7 @@ fn test_policy_step_result_with_tool_and_fallback() {
 #[test]
 fn test_believe_request_with_tags() {
     let ev = EvidenceInput::new("src", "content");
-    let req = BelieveRequest::new("claim", vec![ev])
-        .with_tags(vec!["tag1".into(), "tag2".into()]);
+    let req = BelieveRequest::new("claim", vec![ev]).with_tags(vec!["tag1".into(), "tag2".into()]);
     assert_eq!(req.tags.len(), 2);
     assert_eq!(req.tags[0], "tag1");
 }
