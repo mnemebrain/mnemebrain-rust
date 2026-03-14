@@ -1,15 +1,15 @@
-/// Integration tests for the MnemeBrain Rust SDK.
-///
-/// These tests use `wiremock` to simulate realistic multi-step workflows against
-/// mocked servers. Each test exercises a sequence of SDK calls rather than a
-/// single endpoint in isolation.
-use std::time::Duration;
 use mnemebrain::{
     BeliefFilters, BeliefType, BelieveRequest, CommitMode, EvidenceInput, FrameOpenRequest,
     GoalStatus, LiteFrameOpenRequest, MnemeBrainClient, Polarity, PolicyStatus, SearchRequest,
     TruthState,
 };
 use serde_json::json;
+/// Integration tests for the MnemeBrain Rust SDK.
+///
+/// These tests use `wiremock` to simulate realistic multi-step workflows against
+/// mocked servers. Each test exercises a sequence of SDK calls rather than a
+/// single endpoint in isolation.
+use std::time::Duration;
 use wiremock::matchers::{header, header_exists, method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -218,11 +218,16 @@ async fn test_search_and_filter_workflow() {
 
     // Believe two claims
     client
-        .believe(&BelieveRequest::new("water is wet", vec![ev.clone()]).with_source_agent("agent-1"))
+        .believe(
+            &BelieveRequest::new("water is wet", vec![ev.clone()]).with_source_agent("agent-1"),
+        )
         .await
         .unwrap();
     client
-        .believe(&BelieveRequest::new("water freezes at 0 degrees Celsius", vec![ev]).with_source_agent("agent-1"))
+        .believe(
+            &BelieveRequest::new("water freezes at 0 degrees Celsius", vec![ev])
+                .with_source_agent("agent-1"),
+        )
         .await
         .unwrap();
 
@@ -635,7 +640,11 @@ async fn test_sandbox_fork_assume_diff_commit() {
     assert!(!diff.summary.is_empty());
 
     // Commit
-    let commit = client.sandbox().commit("sb-1", CommitMode::All, None).await.unwrap();
+    let commit = client
+        .sandbox()
+        .commit("sb-1", CommitMode::All, None)
+        .await
+        .unwrap();
     assert_eq!(commit.sandbox_id, "sb-1");
     assert_eq!(commit.committed_belief_ids, vec!["b-target"]);
     assert!(commit.conflicts.is_empty());
@@ -934,7 +943,11 @@ async fn test_auth_header_propagation() {
         .mount(&mock_server)
         .await;
 
-    let client = MnemeBrainClient::with_auth(&mock_server.uri(), "super-secret-key", Duration::from_secs(5));
+    let client = MnemeBrainClient::with_auth(
+        &mock_server.uri(),
+        "super-secret-key",
+        Duration::from_secs(5),
+    );
 
     // Health check should carry the auth header
     let health = client.health().await.unwrap();

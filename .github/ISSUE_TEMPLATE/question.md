@@ -1,6 +1,6 @@
 ---
 name: Question
-about: Ask a question about MnemeBrain Python SDK
+about: Ask a question about MnemeBrain Rust SDK
 title: "[QUESTION] "
 labels: question
 assignees: ''
@@ -8,7 +8,7 @@ assignees: ''
 
 ## Question
 
-Your question about the MnemeBrain Python SDK.
+Your question about the MnemeBrain Rust SDK.
 
 ## Context
 

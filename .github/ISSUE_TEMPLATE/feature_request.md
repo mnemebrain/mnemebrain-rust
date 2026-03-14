@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an enhancement for MnemeBrain Python SDK
+about: Suggest an enhancement for MnemeBrain Rust SDK
 title: "[FEATURE] "
 labels: enhancement
 assignees: ''

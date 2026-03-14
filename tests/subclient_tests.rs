@@ -1,6 +1,9 @@
-use std::time::Duration;
-use mnemebrain::{AttackType, BeliefType, CommitMode, EvidenceInput, GoalStatus, MnemeBrainClient, PolicyStatus, TruthState};
+use mnemebrain::{
+    AttackType, BeliefType, CommitMode, EvidenceInput, GoalStatus, MnemeBrainClient, PolicyStatus,
+    TruthState,
+};
 use serde_json::json;
+use std::time::Duration;
 use wiremock::matchers::{method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -232,7 +235,13 @@ async fn test_sandbox_attack() {
     let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
     let result = client
         .sandbox()
-        .attack("sb-1", "b-attacker", "b-target", AttackType::Contradicts, 0.9)
+        .attack(
+            "sb-1",
+            "b-attacker",
+            "b-target",
+            AttackType::Contradicts,
+            0.9,
+        )
         .await
         .unwrap();
     assert_eq!(result["edge_id"], "e-atk-1");
@@ -310,7 +319,11 @@ async fn test_sandbox_commit_all() {
         .await;
 
     let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
-    let result = client.sandbox().commit("sb-2", CommitMode::All, None).await.unwrap();
+    let result = client
+        .sandbox()
+        .commit("sb-2", CommitMode::All, None)
+        .await
+        .unwrap();
     assert_eq!(result.committed_belief_ids.len(), 2);
     assert_eq!(result.conflicts[0], "b-3");
 }
@@ -572,7 +585,11 @@ async fn test_goal_update_status() {
         .await;
 
     let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
-    let goal = client.goals().update_status("g-1", GoalStatus::Paused).await.unwrap();
+    let goal = client
+        .goals()
+        .update_status("g-1", GoalStatus::Paused)
+        .await
+        .unwrap();
     assert_eq!(goal.status, mnemebrain::GoalStatus::Paused);
 }
 

@@ -1,6 +1,9 @@
-use std::time::Duration;
-use mnemebrain::{BelieveRequest, EvidenceInput, FrameOpenRequest, LiteFrameOpenRequest, MnemeBrainClient, SearchRequest, TruthState};
+use mnemebrain::{
+    BelieveRequest, EvidenceInput, FrameOpenRequest, LiteFrameOpenRequest, MnemeBrainClient,
+    SearchRequest, TruthState,
+};
 use serde_json::json;
+use std::time::Duration;
 use wiremock::matchers::{method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -235,7 +238,10 @@ async fn test_frame_lifecycle() {
 
     let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
 
-    let open = client.frame_open(&FrameOpenRequest::new("test")).await.unwrap();
+    let open = client
+        .frame_open(&FrameOpenRequest::new("test"))
+        .await
+        .unwrap();
     assert_eq!(open.frame_id, "f-1");
 
     let ctx = client.frame_context("f-1").await.unwrap();
@@ -300,7 +306,8 @@ async fn test_with_auth() {
         .mount(&mock_server)
         .await;
 
-    let client = MnemeBrainClient::with_auth(&mock_server.uri(), "test-api-key", Duration::from_secs(5));
+    let client =
+        MnemeBrainClient::with_auth(&mock_server.uri(), "test-api-key", Duration::from_secs(5));
     let resp = client.health().await.unwrap();
     assert_eq!(resp.status, "ok");
 }
@@ -477,9 +484,8 @@ async fn test_get_memory_tier() {
 #[tokio::test]
 async fn test_query_multihop() {
     let mock_server = MockServer::start().await;
-    Mock::given(method("GET"))
-        .and(path("/multihop"))
-        .and(query_param("query", "causes of X"))
+    Mock::given(method("POST"))
+        .and(path("/query_multihop"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "results": [
                 {
@@ -680,4 +686,60 @@ async fn test_reconsolidation_accessor_returns_consistent_client() {
 fn test_client_default_constructor() {
     // Verify the convenience constructor builds without panicking.
     let _client = MnemeBrainClient::default();
+}
+
+// ── Builder user_agent ──
+
+#[test]
+fn test_client_builder_with_user_agent() {
+    let _client = mnemebrain::MnemeBrainClientBuilder::new("http://localhost:8000")
+        .user_agent("my-agent/1.0")
+        .build();
+    // Verify it builds without panicking; user_agent is internal to reqwest.
+}
+
+// ── list_beliefs with belief_type and tag filters ──
+
+#[tokio::test]
+async fn test_list_beliefs_with_belief_type_filter() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/beliefs"))
+        .and(query_param("belief_type", "inference"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "beliefs": [],
+            "total": 0,
+            "offset": 0,
+            "limit": 50
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
+    let filters = mnemebrain::BeliefFilters::default()
+        .with_belief_type(mnemebrain::BeliefType::Inference);
+    let resp = client.list_beliefs(&filters).await.unwrap();
+    assert_eq!(resp.total, 0);
+}
+
+#[tokio::test]
+async fn test_list_beliefs_with_tag_filter() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/beliefs"))
+        .and(query_param("tag", "science"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "beliefs": [],
+            "total": 0,
+            "offset": 0,
+            "limit": 50
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let client = MnemeBrainClient::new(&mock_server.uri(), Duration::from_secs(5));
+    let filters = mnemebrain::BeliefFilters::default()
+        .with_tag("science");
+    let resp = client.list_beliefs(&filters).await.unwrap();
+    assert_eq!(resp.total, 0);
 }

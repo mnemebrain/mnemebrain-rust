@@ -321,7 +321,15 @@ impl MnemeBrainClient {
             .json(&body)
             .send()
             .await?;
-        self.check_response(resp).await?;
+        let status = resp.status().as_u16();
+        if status >= 400 {
+            let text = resp.text().await.unwrap_or_default();
+            return Err(MnemeBrainError::Http {
+                status,
+                message: text,
+            });
+        }
+        // Some servers return empty 200/204 — don't attempt JSON parse.
         Ok(())
     }
 
@@ -411,10 +419,11 @@ impl MnemeBrainClient {
     }
 
     pub async fn query_multihop(&self, query: &str) -> Result<MultihopResponse> {
+        let body = json!({ "query": query });
         let resp = self
             .http
-            .get(self.url("/multihop"))
-            .query(&[("query", query)])
+            .post(self.url("/query_multihop"))
+            .json(&body)
             .send()
             .await?;
         let v = self.check_response(resp).await?;

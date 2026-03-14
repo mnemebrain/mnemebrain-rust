@@ -27,9 +27,9 @@ What actually happened.
 ## Environment
 
 - OS: [e.g., macOS 15, Ubuntu 24.04]
-- Python version: [e.g., 3.12.3]
-- MnemeBrain SDK version: [e.g., 0.1.0a1]
-- MnemeBrain backend version: [e.g., 1.0.0a1]
+- Rust version: [e.g., 1.82.0]
+- MnemeBrain Rust SDK version: [e.g., 0.1.0-alpha.2]
+- MnemeBrain backend version: [e.g., 1.0.0]
 
 ## Additional Context
 

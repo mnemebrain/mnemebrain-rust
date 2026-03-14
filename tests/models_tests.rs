@@ -923,3 +923,73 @@ fn test_policy_step_result_with_tool_and_fallback() {
     assert_eq!(ps.conditions[0], "if_fact");
     assert_eq!(ps.fallback, Some("skip".into()));
 }
+
+// ── Builder method coverage ──
+
+#[test]
+fn test_believe_request_with_tags() {
+    let ev = EvidenceInput::new("src", "content");
+    let req = BelieveRequest::new("claim", vec![ev])
+        .with_tags(vec!["tag1".into(), "tag2".into()]);
+    assert_eq!(req.tags.len(), 2);
+    assert_eq!(req.tags[0], "tag1");
+}
+
+#[test]
+fn test_search_request_builders() {
+    let req = SearchRequest::new("query")
+        .with_limit(20)
+        .with_alpha(0.5)
+        .with_conflict_policy(ConflictPolicy::Conservative);
+    assert_eq!(req.limit, 20);
+    assert!((req.alpha - 0.5).abs() < 0.001);
+    assert_eq!(req.conflict_policy, ConflictPolicy::Conservative);
+}
+
+#[test]
+fn test_frame_open_request_with_ttl() {
+    let req = FrameOpenRequest::new("q").with_ttl(600);
+    assert_eq!(req.ttl_seconds, 600);
+}
+
+#[test]
+fn test_lite_frame_open_request_builders() {
+    let req = LiteFrameOpenRequest::new("q-1")
+        .with_goal_id("g-1")
+        .with_top_k(50)
+        .with_ttl(120);
+    assert_eq!(req.goal_id, Some("g-1".into()));
+    assert_eq!(req.top_k, 50);
+    assert_eq!(req.ttl_seconds, 120);
+}
+
+#[test]
+fn test_belief_filters_builders() {
+    let f = BeliefFilters::default()
+        .with_truth_state(TruthState::Both)
+        .with_belief_type(BeliefType::Inference)
+        .with_tag("science")
+        .with_confidence_range(0.3, 0.9)
+        .with_limit(25)
+        .with_offset(10);
+    assert_eq!(f.truth_state, Some(TruthState::Both));
+    assert_eq!(f.belief_type, Some(BeliefType::Inference));
+    assert_eq!(f.tag, Some("science".into()));
+    assert!((f.min_confidence - 0.3).abs() < 0.001);
+    assert!((f.max_confidence - 0.9).abs() < 0.001);
+    assert_eq!(f.limit, 25);
+    assert_eq!(f.offset, 10);
+}
+
+#[test]
+fn test_evidence_input_default_weight_and_reliability_via_serde() {
+    // Exercises the default_weight() and default_reliability() functions
+    let v = serde_json::json!({
+        "source_ref": "x",
+        "content": "y",
+        "polarity": "supports"
+    });
+    let ev: EvidenceInput = serde_json::from_value(v).unwrap();
+    assert!((ev.weight - 0.7).abs() < 0.001);
+    assert!((ev.reliability - 0.8).abs() < 0.001);
+}
