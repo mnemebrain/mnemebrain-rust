@@ -1,0 +1,5 @@
+# clippy.toml — project-level Clippy configuration.
+# https://doc.rust-lang.org/clippy/configuration.html
+#
+# Leave empty to use Clippy defaults. Add entries here only when a project-wide
+# override is justified (e.g. msrv, cognitive-complexity-threshold).
